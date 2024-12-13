@@ -22,3 +22,5 @@ sudo cp configs/pixegami-agnoster.zsh-theme ~/.oh-my-zsh/themes/pixegami-agnoste
 # Color Theme
 dconf load /org/gnome/terminal/legacy/profiles:/:fb358fc9-49ea-4252-ad34-1d25c649e633/ < configs/terminal_profile.dconf
 
+# Switch the shell.
+chsh -s $(which zsh)
