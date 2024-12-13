@@ -1,21 +1,17 @@
-# Fail on any command.
-set -eux pipefail
+#!/bin/bash
 
 # Install Patched Font
-mkdir ~/.fonts
-sudo cp -a fonts/. ~/.fonts/
-fc-cache -vf ~/.fonts/
+git clone https://github.com/powerline/fonts.git
+cd fonts
+./install.sh
+cd .. && rm -rf fonts
 
 
-# Install ZSH
-sudo apt install -y git-core zsh curl
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
-
-
-# Install plug-ins (you can git-pull to update them later).
-(cd ~/.oh-my-zsh/custom/plugins && git clone https://github.com/zsh-users/zsh-syntax-highlighting)
-(cd ~/.oh-my-zsh/custom/plugins && git clone https://github.com/zsh-users/zsh-autosuggestions)
+# oh-my-zsh & plugins
+wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+zsh -c 'git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions'
+zsh -c 'git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting'
+cp ./.zshrc ~
 
 # Replace the configs with the saved one.
 sudo cp configs/.zshrc ~/.zshrc
@@ -26,20 +22,3 @@ sudo cp configs/pixegami-agnoster.zsh-theme ~/.oh-my-zsh/themes/pixegami-agnoste
 # Color Theme
 dconf load /org/gnome/terminal/legacy/profiles:/:fb358fc9-49ea-4252-ad34-1d25c649e633/ < configs/terminal_profile.dconf
 
-# Add it to the default list in the terminal
-add_list_id=fb358fc9-49ea-4252-ad34-1d25c649e633
-old_list=$(dconf read /org/gnome/terminal/legacy/profiles:/list | tr -d "]")
-
-if [ -z "$old_list" ]
-then
-	front_list="["
-else
-	front_list="$old_list, "
-fi
-
-new_list="$front_list'$add_list_id']"
-dconf write /org/gnome/terminal/legacy/profiles:/list "$new_list" 
-dconf write /org/gnome/terminal/legacy/profiles:/default "'$add_list_id'"
-
-# Switch the shell.
-chsh -s $(which zsh)
